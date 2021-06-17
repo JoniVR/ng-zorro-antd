@@ -115,11 +115,12 @@ export class NzInputNumberComponent implements ControlValueAccessor, AfterViewIn
   @Input() nzSize: NzSizeLDSType = 'default';
   @Input() nzMin: number = -Infinity;
   @Input() nzMax: number = Infinity;
+  @Input() nzSeparator: string = '.';
   @Input() nzParser = (value: string) =>
     value
       .trim()
-      .replace(/。/g, '.')
-      .replace(/[^\w\.-]+/g, '');
+      .replace(/[。,.]/g, this.nzSeparator)
+      .replace(new RegExp(`/[^\d${this.nzSeparator}-]+/g`), '');
   @Input() nzPrecision?: number;
   @Input() nzPrecisionMode: 'cut' | 'toFixed' | ((value: number | string, precision?: number) => number) = 'toFixed';
   @Input() nzPlaceHolder = '';
@@ -128,12 +129,12 @@ export class NzInputNumberComponent implements ControlValueAccessor, AfterViewIn
   @Input() nzId: string | null = null;
   @Input() @InputBoolean() nzDisabled = false;
   @Input() @InputBoolean() nzAutoFocus = false;
-  @Input() nzFormatter: (value: number) => string | number = value => value;
+  @Input() nzFormatter: (value: number) => string | number = value => value.toString().replace('.', this.nzSeparator);
 
   onModelChange(value: string): void {
     this.parsedValue = this.nzParser(value);
     this.inputElement.nativeElement.value = `${this.parsedValue}`;
-    const validValue = this.getCurrentValidValue(this.parsedValue);
+    const validValue = this.getCurrentValidValue(this.parsedValue.replace(this.nzSeparator, '.'));
     this.setValue(validValue);
   }
 
